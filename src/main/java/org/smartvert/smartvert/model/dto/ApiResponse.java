@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import lombok.Getter;
 
 @Getter
-@JsonPropertyOrder({"message", "data"})
+@JsonPropertyOrder({"message", "data" })
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ApiResponse<T> {
 

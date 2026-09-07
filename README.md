@@ -1,6 +1,6 @@
 # SmartVert Backend
 
-SmartVert Backend is a high-performance Java Spring Boot service designed to calculate solar panel counts, battery capacities, and inverter rating configurations based on appliance running loads and backup requirements.
+SmartVert Backend is a Java Spring Boot service designed for solar panel, battery capacity, and inverter size load calculations.
 
 ---
 
@@ -65,9 +65,9 @@ smartverse-backend/
 
 ---
 
-## Environment Configuration
+## Environment Configuration (`.env.example`)
 
-Copy `.env.example` to `.env` in the root folder and configure your PostgreSQL database parameters:
+The backend relies on the following environment variables (imported automatically via `application.yml`):
 
 ```env
 DB_USER=db_user
@@ -82,9 +82,9 @@ DB_PORT=db_port
 
 ### Prerequisites
 
-- JDK 21+ (configured for Java 25)
-- Maven 3.9+
-- PostgreSQL or Docker (optional)
+- JDK 21+
+- Maven 3.9+ (or `./mvnw`)
+- Docker & Docker Compose
 
 ### Running Locally
 
@@ -93,14 +93,14 @@ DB_PORT=db_port
    cp .env.example .env
    ```
 
-2. **Start Database (Optional Docker Setup):**
+2. **Start Database Container:**
    ```bash
    docker-compose up -d
    ```
 
 3. **Start Spring Boot Application:**
    ```bash
-   mvn spring-boot:run
+   ./mvnw spring-boot:run
    ```
 
 4. **Access Swagger UI documentation:**
@@ -197,3 +197,4 @@ Verify sizing computations and endpoint security policies using the integrated J
 ```bash
 mvn clean test -o
 ```
+g
