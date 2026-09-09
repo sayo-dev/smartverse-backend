@@ -2,6 +2,11 @@ spring:
   application:
     name: smart-vert
 
+  security:
+    user:
+      name: ${ADMIN_USERNAME:admin}
+      password: ${ADMIN_PASSWORD:admin123}
+
   config:
     import: "optional:file:.env[.properties]"
 
@@ -23,3 +28,7 @@ spring:
     enabled: true
     baseline-on-migrate: true
 
+cloudinary:
+  cloud-name: ${CLOUDINARY_CLOUD_NAME:demo_cloud}
+  api-key: ${CLOUDINARY_API_KEY:demo_key}
+  api-secret: ${CLOUDINARY_API_SECRET:demo_secret}
