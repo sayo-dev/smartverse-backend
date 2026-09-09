@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -176,9 +177,10 @@ public class ControllerTests {
                 }
                 """.formatted(categoryId);
 
-        mockMvc.perform(post("/api/v1/admin/appliances")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(requestBody))
+        MockMultipartFile dtoPart = new MockMultipartFile("dto", "", "application/json", requestBody.getBytes());
+
+        mockMvc.perform(multipart("/api/v1/admin/appliances")
+                .file(dtoPart))
                 .andExpect(status().isUnauthorized());
     }
 
@@ -200,14 +202,71 @@ public class ControllerTests {
                 }
                 """.formatted(categoryId);
 
-        mockMvc.perform(post("/api/v1/admin/appliances")
-                .with(SecurityMockMvcRequestPostProcessors.user("admin").roles("ADMIN"))
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(requestBody))
+        MockMultipartFile dtoPart = new MockMultipartFile("dto", "", "application/json", requestBody.getBytes());
+
+        mockMvc.perform(multipart("/api/v1/admin/appliances")
+                .file(dtoPart)
+                .with(SecurityMockMvcRequestPostProcessors.user("admin").roles("ADMIN")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message", is("Appliance created successfully")))
                 .andExpect(jsonPath("$.data.code", is("tv")))
                 .andExpect(jsonPath("$.data.name", is("Television")));
+    }
+
+    @Test
+    void shouldAllowAdminWithOctetStreamDtoPart() throws Exception {
+        String requestBody = """
+                {
+                    "categoryId": "%s",
+                    "code": "fan",
+                    "name": "Ceiling Fan",
+                    "defaultWattage": 75.00,
+                    "minWattage": 30.00,
+                    "maxWattage": 100.00,
+                    "defaultVoltage": 220,
+                    "surgeApplicable": false,
+                    "surgeMultiplier": 1.00,
+                    "heavyLoad": false,
+                    "active": true
+                }
+                """.formatted(categoryId);
+
+        MockMultipartFile dtoPart = new MockMultipartFile("dto", "", "application/octet-stream", requestBody.getBytes());
+
+        mockMvc.perform(multipart("/api/v1/admin/appliances")
+                .file(dtoPart)
+                .with(SecurityMockMvcRequestPostProcessors.user("admin").roles("ADMIN")))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message", is("Appliance created successfully")))
+                .andExpect(jsonPath("$.data.code", is("fan")));
+    }
+
+    @Test
+    void shouldFailWhenCategoryNotFound() throws Exception {
+        UUID nonExistentCategoryId = UUID.randomUUID();
+        String requestBody = """
+                {
+                    "categoryId": "%s",
+                    "code": "unknown-device",
+                    "name": "Unknown Device",
+                    "defaultWattage": 100.00,
+                    "minWattage": 50.00,
+                    "maxWattage": 200.00,
+                    "defaultVoltage": 220,
+                    "surgeApplicable": false,
+                    "surgeMultiplier": 1.00,
+                    "heavyLoad": false,
+                    "active": true
+                }
+                """.formatted(nonExistentCategoryId);
+
+        MockMultipartFile dtoPart = new MockMultipartFile("dto", "", "application/json", requestBody.getBytes());
+
+        mockMvc.perform(multipart("/api/v1/admin/appliances")
+                .file(dtoPart)
+                .with(SecurityMockMvcRequestPostProcessors.user("admin").roles("ADMIN")))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message", is("Category not found")));
     }
 
     @Test
