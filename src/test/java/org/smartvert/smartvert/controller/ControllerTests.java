@@ -177,15 +177,14 @@ public class ControllerTests {
                 }
                 """.formatted(categoryId);
 
-        MockMultipartFile dtoPart = new MockMultipartFile("dto", "", "application/json", requestBody.getBytes());
-
-        mockMvc.perform(multipart("/api/v1/admin/appliances")
-                .file(dtoPart))
+        mockMvc.perform(post("/api/v1/admin/appliances")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody))
                 .andExpect(status().isUnauthorized());
     }
 
     @Test
-    void shouldAllowAdminWithAuth() throws Exception {
+    void shouldAllowAdminWithJsonAuth() throws Exception {
         String requestBody = """
                 {
                     "categoryId": "%s",
@@ -202,10 +201,9 @@ public class ControllerTests {
                 }
                 """.formatted(categoryId);
 
-        MockMultipartFile dtoPart = new MockMultipartFile("dto", "", "application/json", requestBody.getBytes());
-
-        mockMvc.perform(multipart("/api/v1/admin/appliances")
-                .file(dtoPart)
+        mockMvc.perform(post("/api/v1/admin/appliances")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody)
                 .with(SecurityMockMvcRequestPostProcessors.user("admin").roles("ADMIN")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message", is("Appliance created successfully")))
@@ -214,27 +212,19 @@ public class ControllerTests {
     }
 
     @Test
-    void shouldAllowAdminWithOctetStreamDtoPart() throws Exception {
-        String requestBody = """
-                {
-                    "categoryId": "%s",
-                    "code": "fan",
-                    "name": "Ceiling Fan",
-                    "defaultWattage": 75.00,
-                    "minWattage": 30.00,
-                    "maxWattage": 100.00,
-                    "defaultVoltage": 220,
-                    "surgeApplicable": false,
-                    "surgeMultiplier": 1.00,
-                    "heavyLoad": false,
-                    "active": true
-                }
-                """.formatted(categoryId);
-
-        MockMultipartFile dtoPart = new MockMultipartFile("dto", "", "application/octet-stream", requestBody.getBytes());
-
+    void shouldAllowAdminWithMultipartForm() throws Exception {
         mockMvc.perform(multipart("/api/v1/admin/appliances")
-                .file(dtoPart)
+                .param("categoryId", categoryId.toString())
+                .param("code", "fan")
+                .param("name", "Ceiling Fan")
+                .param("defaultWattage", "75.00")
+                .param("minWattage", "30.00")
+                .param("maxWattage", "100.00")
+                .param("defaultVoltage", "220")
+                .param("surgeApplicable", "false")
+                .param("surgeMultiplier", "1.00")
+                .param("heavyLoad", "false")
+                .param("active", "true")
                 .with(SecurityMockMvcRequestPostProcessors.user("admin").roles("ADMIN")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message", is("Appliance created successfully")))
@@ -260,10 +250,9 @@ public class ControllerTests {
                 }
                 """.formatted(nonExistentCategoryId);
 
-        MockMultipartFile dtoPart = new MockMultipartFile("dto", "", "application/json", requestBody.getBytes());
-
-        mockMvc.perform(multipart("/api/v1/admin/appliances")
-                .file(dtoPart)
+        mockMvc.perform(post("/api/v1/admin/appliances")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody)
                 .with(SecurityMockMvcRequestPostProcessors.user("admin").roles("ADMIN")))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.message", is("Category not found")));

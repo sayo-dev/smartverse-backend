@@ -6,11 +6,12 @@ import org.smartvert.smartvert.model.dto.ApiResponse;
 import org.smartvert.smartvert.model.dto.CalculationRequest;
 import org.smartvert.smartvert.model.dto.CalculationResult;
 import org.smartvert.smartvert.service.CalculationService;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/v1/calculations")
+@RequestMapping(value = "/api/v1/calculations", produces = MediaType.APPLICATION_JSON_VALUE)
 @RequiredArgsConstructor
 public class CalculationController {
 
